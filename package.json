@@ -1,0 +1,30 @@
+{
+  "name": "hrm-grammar",
+  "version": "1.0.0",
+  "description": "pegjs grammar for Human Resource Machine programs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sixlettervariables/hrm-grammar.git"
+  },
+  "keywords": [
+    "hrm",
+    "grammar",
+    "pegjs"
+  ],
+  "author": "Christopher A. Watford <christopher.watford@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sixlettervariables/hrm-grammar/issues"
+  },
+  "homepage": "https://github.com/sixlettervariables/hrm-grammar#readme",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-jshint": "^0.11.3",
+    "grunt-peg": "^2.0.0",
+    "pegjs": "^0.9.0"
+  }
+}
