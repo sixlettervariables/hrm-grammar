@@ -81,7 +81,7 @@ Identifier
   = !ReservedWord name:IdentifierName { return name; }
 
 Floor
- = v:UnicodeDigit {
+ = v:Digit+ {
    return {
      type: "Floor",
      name: v
@@ -111,6 +111,9 @@ UnicodeLetter
 
 UnicodeDigit
   = Nd
+
+Digit
+ = [0-9]
 
 ReservedWord
  = tkInbox
