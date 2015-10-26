@@ -14,11 +14,11 @@ grunt.initConfig({
     options: { trackLineAndColumn: true },
     hrmstrict: {
       src: "grammars/hrm-strict.pegjs",
-      dest: "lib/hrms-strict.pegjs.js"
+      dest: "lib/hrm-strict.js"
     },
     hrm: {
       src: "grammars/hrm.pegjs",
-      dest: "lib/hrms.pegjs.js"
+      dest: "lib/hrm-extended.js"
     }
   }
 });
