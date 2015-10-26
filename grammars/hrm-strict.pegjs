@@ -84,7 +84,7 @@ Floor
  = v:Digit+ {
    return {
      type: "Floor",
-     name: v
+     name: v.join("")
    };
  }
 
