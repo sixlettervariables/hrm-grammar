@@ -83,7 +83,7 @@ Identifier
 Floor
  = v:Digit+ {
    return {
-     type: "Floor",
+     type: "Identifier",
      name: v.join("")
    };
  }
