@@ -82,11 +82,17 @@ Identifier
 
 Floor
  = v:Digit+ {
-   return {
-     type: "Identifier",
-     name: v.join("")
-   };
- }
+    return {
+      type: "Identifier",
+      name: v.join("")
+    };
+  }
+ / "[" v:Digit+ "]" {
+    return {
+      type: "IndirectIdentifier",
+      name: v.join("")
+    };
+  }
 
 IdentifierName "identifier"
   = id:IdentifierPart+ {
@@ -174,15 +180,6 @@ SingleArgOperandStatement
    return {
      "type": "copyfrom",
      "var": arg
-   };
- }
- / tkCopyFrom __ "[" arg:Floor "]" {
-   return {
-     "type": "copyfrom",
-     "var": {
-       "type": "IndirectIdentifier",
-       "name": arg.name
-     }
    };
  }
  / tkCopyTo __ arg:Floor {
