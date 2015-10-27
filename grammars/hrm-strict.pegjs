@@ -95,12 +95,6 @@ IdentifierName "identifier"
         name: id.join("")
       };
     }
-  / "[" id:IdentifierPart+ "]" {
-      return {
-        type: "IndirectIdentifier",
-        name: id.join("")
-      };
-    }
 
 IdentifierPart
   = UnicodeLetter
@@ -179,37 +173,46 @@ SingleArgOperandStatement
  = tkCopyFrom __ arg:Floor {
    return {
      "type": "copyfrom",
-     "var": arg.name
+     "var": arg
+   };
+ }
+ / tkCopyFrom __ "[" arg:Floor "]" {
+   return {
+     "type": "copyfrom",
+     "var": {
+       "type": "IndirectIdentifier",
+       "name": arg.name
+     }
    };
  }
  / tkCopyTo __ arg:Floor {
    return {
      "type": "copyto",
-     "var": arg.name
+     "var": arg
    };
  }
  / tkAdd __ arg:Floor {
    return {
      "type": "add",
-     "var": arg.name
+     "var": arg
    };
  }
  / tkSub __ arg:Floor {
    return {
      "type": "sub",
-     "var": arg.name
+     "var": arg
    };
  }
  / tkBumpUp __ arg:Floor {
    return {
      "type": "bumpup",
-     "var": arg.name
+     "var": arg
    };
  }
  / tkBumpDn __ arg:Floor {
    return {
      "type": "bumpdn",
-     "var": arg.name
+     "var": arg
    };
  }
 
