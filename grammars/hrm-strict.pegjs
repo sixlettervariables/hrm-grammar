@@ -95,6 +95,12 @@ IdentifierName "identifier"
         name: id.join("")
       };
     }
+  / "[" id:IdentifierPart+ "]" {
+      return {
+        type: "IndirectIdentifier",
+        name: id.join("")
+      };
+    }
 
 IdentifierPart
   = UnicodeLetter

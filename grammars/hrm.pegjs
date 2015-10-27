@@ -100,7 +100,7 @@ IdentifierName "identifier"
     }
   / "[" IdentifierStart? tail:IdentifierPart* "]" {
     return {
-      type: "Identifier",
+      type: "IndirectIdentifier",
       name: tail.join("")
     };
   }
@@ -179,37 +179,37 @@ SingleArgOperandStatement
  = tkCopyFrom __ arg:Identifier {
    return {
      "type": "copyfrom",
-     "var": arg.name
+     "var": arg
    };
  }
  / tkCopyTo __ arg:Identifier {
    return {
      "type": "copyto",
-     "var": arg.name
+     "var": arg
    };
  }
  / tkAdd __ arg:Identifier {
    return {
      "type": "add",
-     "var": arg.name
+     "var": arg
    };
  }
  / tkSub __ arg:Identifier {
    return {
      "type": "sub",
-     "var": arg.name
+     "var": arg
    };
  }
  / tkBumpUp __ arg:Identifier {
    return {
      "type": "bumpup",
-     "var": arg.name
+     "var": arg
    };
  }
  / tkBumpDn __ arg:Identifier {
    return {
      "type": "bumpdn",
-     "var": arg.name
+     "var": arg
    };
  }
 
