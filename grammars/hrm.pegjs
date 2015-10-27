@@ -98,12 +98,6 @@ IdentifierName "identifier"
         name: tail.join("")
       };
     }
-  / "[" IdentifierStart? tail:IdentifierPart* "]" {
-    return {
-      type: "IndirectIdentifier",
-      name: tail.join("")
-    };
-  }
 
 IdentifierPart
   = UnicodeLetter
@@ -180,6 +174,15 @@ SingleArgOperandStatement
    return {
      "type": "copyfrom",
      "var": arg
+   };
+ }
+ / tkCopyFrom __ "[" arg:Identifier "]" {
+   return {
+     "type": "copyfrom",
+     "var": {
+       "type": "IndirectIdentifier",
+       "name": arg.name
+     }
    };
  }
  / tkCopyTo __ arg:Identifier {
