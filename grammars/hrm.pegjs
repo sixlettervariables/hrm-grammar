@@ -92,7 +92,7 @@ IdentifierStart
  = "$"
 
 IdentifierName "identifier"
-  = IdentifierStart? tail:IdentifierPart* {
+  = IdentifierStart? tail:IdentifierPart+ {
       return {
         type: "Identifier",
         name: tail.join("")

@@ -1,16 +1,20 @@
 {
   "name": "hrm-grammar",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "pegjs grammar for Human Resource Machine programs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tape test/*.js"
   },
   "files": [
     "grammars/hrm-strict.pegjs",
     "grammars/hrm.pegjs",
     "lib/hrm-strict.js",
     "lib/hrm-extended.js",
+    "test/syntax.js",
+    "test/syntax-extended.js",
+    "test/fixtures/syntax-1.hrm",
+    "test/fixtures/syntax-extended-1.hrm",
     "Gruntfile.js",
     "LICENSE",
     "README.md",
@@ -35,6 +39,8 @@
     "grunt": "^0.4.5",
     "grunt-contrib-jshint": "^0.11.3",
     "grunt-peg": "^2.0.0",
-    "pegjs": "^0.9.0"
+    "pegjs": "^0.9.0",
+    "tap": "^2.2.0",
+    "tape": "^4.2.2"
   }
 }
