@@ -1,5 +1,25 @@
-/*
- * Human Resource Machine Grammar
+/** Human Resource Machine Grammar
+ *
+ * Copyright (C) 2015 Christopher A Watford
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
  * ===========================================================================
  *
  * Based on the JavaScript grammar from PEG.js' examples [1]. Probably going to
@@ -8,6 +28,8 @@
  * [1] https://github.com/pegjs/pegjs/blob/master/examples/javascript.pegjs
  */
 {
+  var commands = require('../lib/hrm-commands.js');
+
   function extractList(list, index) {
     var result = new Array(list.length), i;
 
@@ -155,90 +177,53 @@ Statement
 
 LabelStatement
  = label:Label ":" {
-   return {
-     type: "label",
-     label: label.name
-   };
+   return new commands.Label(location(), label.name);
  }
 
 InboxStatement
  = tkInbox {
-   return {
-     "type": "inbox"
-   };
+   return new commands.Inbox(location());
  }
 
 OutboxStatement
  = tkOutbox {
-   return {
-     "type": "outbox"
-   };
+   return new commands.Outbox(location());
  }
 
 SingleArgOperandStatement
  = tkCopyFrom __ arg:Floor {
-   return {
-     "type": "copyfrom",
-     "var": arg
-   };
+   return new commands.Copyfrom(location(), arg);
  }
  / tkCopyTo __ arg:Floor {
-   return {
-     "type": "copyto",
-     "var": arg
-   };
+   return new commands.Copyto(location(), arg);
  }
  / tkAdd __ arg:Floor {
-   return {
-     "type": "add",
-     "var": arg
-   };
+   return new commands.Add(location(), arg);
  }
  / tkSub __ arg:Floor {
-   return {
-     "type": "sub",
-     "var": arg
-   };
+   return new commands.Sub(location(), arg);
  }
  / tkBumpUp __ arg:Floor {
-   return {
-     "type": "bumpup",
-     "var": arg
-   };
+   return new commands.Bumpup(location(), arg);
  }
  / tkBumpDn __ arg:Floor {
-   return {
-     "type": "bumpdn",
-     "var": arg
-   };
+   return new commands.Bumpdn(location(), arg);
  }
 
 JumpStatement
  = tkJump __ label:Label {
-   return {
-     "type": "jump",
-     "label": label.name
-   };
+   return new commands.Jump(location(), label.name);
  }
  / tkJumpZero __ label:Label {
-   return {
-     "type": "jumpz",
-     "label": label.name
-   };
+   return new commands.Jumpz(location(), label.name);
  }
  / tkJumpNeg __ label:Label {
-   return {
-     "type": "jumpn",
-     "label": label.name
-   };
+   return new commands.Jumpn(location(), label.name);
  }
 
 CommentStatement
  = tkComment __ arg:Identifier {
-   return {
-     type: "comment",
-     ref: arg.name
-   };
+   return new commands.Comment(location(), arg.name);
  }
 
 DefineStatement
@@ -247,22 +232,12 @@ DefineStatement
 
 DefineLabelStatement
  = tkDefine __ tkLabel __ arg:Identifier __ data:Base64Data {
-   return {
-     type: "define",
-     what: "label",
-     ref: arg.name,
-     data: data
-   };
+   return new commands.Define(location(), "label", arg.name, data);
  }
 
 DefineCommentStatement
  = tkDefine __ tkComment __ arg:Identifier __ data:Base64Data {
-   return {
-     type: "define",
-     what: "comment",
-     ref: arg.name,
-     data: data
-   }
+   return new commands.Define(location(), "comment", arg.name, data);
  }
 
 Base64Data

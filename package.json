@@ -1,6 +1,6 @@
 {
   "name": "hrm-grammar",
-  "version": "1.8.0",
+  "version": "2.0.3",
   "description": "pegjs grammar for Human Resource Machine programs",
   "main": "index.js",
   "scripts": {
@@ -8,13 +8,10 @@
   },
   "files": [
     "grammars/hrm-strict.pegjs",
-    "grammars/hrm.pegjs",
-    "lib/hrm-strict.js",
-    "lib/hrm-extended.js",
+    "build/hrm-strict.js",
+    "lib/hrm-commands.js",
     "test/syntax.js",
-    "test/syntax-extended.js",
     "test/fixtures/syntax-1.hrm",
-    "test/fixtures/syntax-extended-1.hrm",
     "Gruntfile.js",
     "LICENSE",
     "README.md",
