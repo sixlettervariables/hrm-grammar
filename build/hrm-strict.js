@@ -117,96 +117,49 @@ module.exports = (function() {
         peg$c52 = ":",
         peg$c53 = { type: "literal", value: ":", description: "\":\"" },
         peg$c54 = function(label) {
-           return {
-             type: "label",
-             label: label.name
-           };
+           return new commands.Label(location(), label.name);
          },
         peg$c55 = function() {
-           return {
-             "type": "inbox"
-           };
+           return new commands.Inbox(location());
          },
         peg$c56 = function() {
-           return {
-             "type": "outbox"
-           };
+           return new commands.Outbox(location());
          },
         peg$c57 = function(arg) {
-           return {
-             "type": "copyfrom",
-             "var": arg
-           };
+           return new commands.Copyfrom(location(), arg);
          },
         peg$c58 = function(arg) {
-           return {
-             "type": "copyto",
-             "var": arg
-           };
+           return new commands.Copyto(location(), arg);
          },
         peg$c59 = function(arg) {
-           return {
-             "type": "add",
-             "var": arg
-           };
+           return new commands.Add(location(), arg);
          },
         peg$c60 = function(arg) {
-           return {
-             "type": "sub",
-             "var": arg
-           };
+           return new commands.Sub(location(), arg);
          },
         peg$c61 = function(arg) {
-           return {
-             "type": "bumpup",
-             "var": arg
-           };
+           return new commands.Bumpup(location(), arg);
          },
         peg$c62 = function(arg) {
-           return {
-             "type": "bumpdn",
-             "var": arg
-           };
+           return new commands.Bumpdn(location(), arg);
          },
         peg$c63 = function(label) {
-           return {
-             "type": "jump",
-             "label": label.name
-           };
+           return new commands.Jump(location(), label.name);
          },
         peg$c64 = function(label) {
-           return {
-             "type": "jumpz",
-             "label": label.name
-           };
+           return new commands.Jumpz(location(), label.name);
          },
         peg$c65 = function(label) {
-           return {
-             "type": "jumpn",
-             "label": label.name
-           };
+           return new commands.Jumpn(location(), label.name);
          },
         peg$c66 = function(arg) {
-           return {
-             type: "comment",
-             ref: arg.name
-           };
+           return new commands.Comment(location(), arg.name);
          },
         peg$c67 = function(arg, data) {
-           return {
-             type: "define",
-             what: "label",
-             ref: arg.name,
-             data: data
-           };
+           return new commands.Define(location(), "label", arg.name, data);
          },
         peg$c68 = function(arg, data) {
-           return {
-             type: "define",
-             what: "comment",
-             ref: arg.name,
-             data: data
-           }
+           return new commands.Define(location(), "comment", arg.name, data);
          },
         peg$c69 = ";",
         peg$c70 = { type: "literal", value: ";", description: "\";\"" },
@@ -2335,6 +2288,8 @@ module.exports = (function() {
       return s0;
     }
 
+
+      var commands = require('../lib/hrm-commands.js');
 
       function extractList(list, index) {
         var result = new Array(list.length), i;
