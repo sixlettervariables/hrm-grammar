@@ -109,7 +109,7 @@ Floor
       name: v.join("")
     };
   }
- / "[" v:Digit+ "]" {
+ / "[" _ v:Digit+ _ "]" {
     return {
       type: "IndirectIdentifier",
       name: v.join("")
@@ -191,38 +191,38 @@ OutboxStatement
  }
 
 SingleArgOperandStatement
- = tkCopyFrom __ arg:Floor {
+ = tkCopyFrom _ arg:Floor {
    return new commands.Copyfrom(location(), arg);
  }
- / tkCopyTo __ arg:Floor {
+ / tkCopyTo _ arg:Floor {
    return new commands.Copyto(location(), arg);
  }
- / tkAdd __ arg:Floor {
+ / tkAdd _ arg:Floor {
    return new commands.Add(location(), arg);
  }
- / tkSub __ arg:Floor {
+ / tkSub _ arg:Floor {
    return new commands.Sub(location(), arg);
  }
- / tkBumpUp __ arg:Floor {
+ / tkBumpUp _ arg:Floor {
    return new commands.Bumpup(location(), arg);
  }
- / tkBumpDn __ arg:Floor {
+ / tkBumpDn _ arg:Floor {
    return new commands.Bumpdn(location(), arg);
  }
 
 JumpStatement
- = tkJump __ label:Label {
+ = tkJump _ label:Label {
    return new commands.Jump(location(), label.name);
  }
- / tkJumpZero __ label:Label {
+ / tkJumpZero _ label:Label {
    return new commands.Jumpz(location(), label.name);
  }
- / tkJumpNeg __ label:Label {
+ / tkJumpNeg _ label:Label {
    return new commands.Jumpn(location(), label.name);
  }
 
 CommentStatement
- = tkComment __ arg:Identifier {
+ = tkComment _ arg:Identifier {
    return new commands.Comment(location(), arg.name);
  }
 
@@ -231,18 +231,18 @@ DefineStatement
  / DefineCommentStatement
 
 DefineLabelStatement
- = tkDefine __ tkLabel __ arg:Identifier __ data:Base64Data {
+ = tkDefine _ tkLabel _ arg:Identifier LineTerminatorSequence __ data:Base64Data {
    return new commands.Define(location(), "label", arg.name, data);
  }
 
 DefineCommentStatement
- = tkDefine __ tkComment __ arg:Identifier __ data:Base64Data {
+ = tkDefine _ tkComment _ arg:Identifier LineTerminatorSequence __ data:Base64Data {
    return new commands.Define(location(), "comment", arg.name, data);
  }
 
 Base64Data
  = b64:Base64+ ";" {
-   return b64.join("");
+   return b64.join("").split(/[\r\n]/).join("");
  }
 
 //
@@ -324,6 +324,8 @@ Zs = [\u0020\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]
 
 /* Skipped */
 
+_
+  = (WhiteSpace)*
 __
   = (WhiteSpace / LineTerminatorSequence / Comment)*
 
