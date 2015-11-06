@@ -1,6 +1,6 @@
 {
   "name": "hrm-grammar",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "pegjs grammar for Human Resource Machine programs",
   "main": "index.js",
   "scripts": {
