@@ -12,9 +12,9 @@ grunt.initConfig({
   },
   peg: {
     options: { trackLineAndColumn: true },
-    hrmstrict: {
-      src: "grammars/hrm-strict.pegjs",
-      dest: "build/hrm-strict.js"
+    hrm: {
+      src: "grammars/hrm.pegjs",
+      dest: "build/hrm.js"
     }
   }
 });
