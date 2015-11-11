@@ -60,17 +60,25 @@ Program
  }
 
 Lines
- = __ head:Line tail:(LineTerminatorSequence __ Line)* {
-   return buildList(head, tail, 2);
+ = __ head:Line tail:(__ Line)* {
+   return buildList(head, tail, 1);
  }
 
 Line
  = _ s:Statement _ { return s; }
 
 Statement
+ = UnterminatedStatement
+ / s:TerminatedStatement _ Comment? (LineTerminatorSequence / EOF) {
+   return s;
+ }
+
+UnterminatedStatement
  = LabelStatement
- / LabeledJumpStatement
  / NoArgStatement
+
+TerminatedStatement
+ = LabeledJumpStatement
  / OneArgStatement
  / DefineStatement
  / CommentStatement

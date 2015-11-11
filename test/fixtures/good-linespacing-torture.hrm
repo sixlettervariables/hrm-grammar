@@ -1,0 +1,20 @@
+-- HUMAN RESOURCE MACHINE PROGRAM --
+
+inbox: INBOX OUTBOX otherinbox: INBOX
+outbox: ADD 2
+INBOX ADD 3
+OUTBOX COPYFROM [  2
+-- THIS IS NOT AS BAD AS IT LOOKS ]
+                  ]--who thought this was a good idea
+INBOX outbox2: JUMPZ otherinbox
+INBOX DEFINE -- please don't write code like this
+      LABEL
+      -- WITH A COMMENT OR TWO
+      -- OF COURSE
+  24
+eJxTY2BgqJG51fBbpm2Bqbzo6tVKj7fMU1+z+6zu+72Wprl7MqwTN0c7nFsq6LJz2hGP6XV7vN2LN/pX
+ZQpFv44TLM6M7S7NTdhbda7crFat82Od/WzD+sdbvtSu2FFdrbWro2zFjrl5shsL0wVXNCYenOMfk9t3
+LXJ+S3hkV+mF6D9ZTom5CTqZsqE8pTyeHH3vjZXmLNYWX6CmO3mhnjHDKBgFo4AuAAAdEES6;
+JUMPZ outbox2
+JUMPN inbox
+JUMP outbox

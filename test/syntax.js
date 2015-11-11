@@ -75,7 +75,6 @@ test('line comments', function (t) {
     assert.end();
   });
 
-
   t.test('line comments without trailing dashes', function (assert) {
     var parsed = hrm.parse("   -- HUMAN RESOURCE MACHINE --      \t        \r\n-- COMMENT 2\r\n\r\n     --COMMENT3\r\n");
     assert.ok(parsed, 'can parse line comments with leading and trailing spaces');
@@ -295,7 +294,10 @@ test('misc grammar requirements', function (t) {
         if (/good-linespacing.+\.hrm$/.test(path)) {
           var data = fs.readFileSync(Path.join('test/fixtures', path));
           var source = data.toString();
-          var parsed = hrm.parse(source);
+          var parsed = false;
+          assert.doesNotThrow(function () {
+            parsed = hrm.parse(source);
+          }, 'can parse ' + path);
           assert.ok(parsed, path + ': accepts commands and arguments broken up over multiple lines');
         }
       });
