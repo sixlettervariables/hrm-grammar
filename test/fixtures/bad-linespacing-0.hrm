@@ -1,0 +1,5 @@
+-- HUMAN RESOURCE MACHINE PROGRAM --
+
+label:
+INBOX
+JUMPZ label label2:

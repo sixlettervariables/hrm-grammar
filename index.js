@@ -22,7 +22,7 @@
  */
 "use strict";
 
-var strict = require('./build/hrm-strict.js');
+var strict = require('./build/hrm.js');
 var commands = require('./lib/hrm-commands.js');
 
 module.exports = {
