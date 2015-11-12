@@ -116,18 +116,17 @@ test('keyword casing', function (t) {
     assert.equal(parsed.labels.length, 1, 'has 1 label(s)');
     assert.equal(parsed.labels[0].type, 'label', '0th label is a label object');
     assert.equal(parsed.labels[0].label, 'a', '0th label is label "a"');
-    assert.equal(parsed.labels[0].lineNumber, 1, '0th label is on line number 1');
     assert.ok(parsed.labelMap.a, 'has label "a" in lookup map');
 
     assert.equal(parsed.unreferencedLabels.length, 2, 'has 2 unreferenced label(s)');
     assert.equal(parsed.unreferencedLabels[0].label, 'b', '0th unreferenced label is "b"');
     assert.ok(parsed.unreferencedLabels[0].referencedBy, 'has referencing statement');
     assert.equal(parsed.unreferencedLabels[0].referencedBy.type, 'jumpz', '0th unreferenced label referenced by "JUMPZ"');
-    assert.equal(parsed.unreferencedLabels[0].referencedBy.lineNumber, 11, '0th unreferenced label referenced on line 11');
+    assert.equal(parsed.unreferencedLabels[0].referencedBy.lineNumber, 10, '0th unreferenced label referenced on line 10');
     assert.equal(parsed.unreferencedLabels[1].label, 'c', '1st unreferenced label is "c"');
     assert.ok(parsed.unreferencedLabels[1].referencedBy, 'has referencing statement');
     assert.equal(parsed.unreferencedLabels[1].referencedBy.type, 'jumpn', '1st unreferenced label referenced by "JUMPN"');
-    assert.equal(parsed.unreferencedLabels[1].referencedBy.lineNumber, 12, '1st unreferenced label referenced on line 12');
+    assert.equal(parsed.unreferencedLabels[1].referencedBy.lineNumber, 11, '1st unreferenced label referenced on line 11');
 
     assert.end();
   });
