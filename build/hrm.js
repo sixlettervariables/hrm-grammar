@@ -38,12 +38,11 @@ module.exports = (function() {
 
         peg$c0 = function(program) { return program; },
         peg$c1 = function(body) {
-           return {
-             statements: optionalList(body)
-           };
+           var statements = pegutils.optionalList(body);
+           return new commands.Program(statements);
          },
         peg$c2 = function(head, tail) {
-           return buildList(head, tail, 1);
+           return pegutils.buildList(head, tail, 1);
          },
         peg$c3 = function(s) { return s; },
         peg$c4 = function(s) {
@@ -57,9 +56,13 @@ module.exports = (function() {
          },
         peg$c9 = { type: "other", description: "argument" },
         peg$c10 = function(a) {
+           var tile = a.join("");
+           if (!validator.isValidTile(tile)) {
+             error('Found tile "'+ tile +'", which is not supported by the level');
+           }
            return {
              type: "Identifier",
-             name: a.join("")
+             name: tile
            };
          },
         peg$c11 = { type: "other", description: "indirect argument" },
@@ -68,9 +71,16 @@ module.exports = (function() {
         peg$c14 = "]",
         peg$c15 = { type: "literal", value: "]", description: "\"]\"" },
         peg$c16 = function(a) {
+           var tile = a.join("");
+           if (!validator.canDereference()) {
+             error('Found indirect addressing, mode not supported by the level');
+           }
+           else if (!validator.isValidTile(tile)) {
+             error('Found tile "'+ tile +'", which is not supported by the level');
+           }
            return {
              type: "IndirectIdentifier",
-             name: a.join("")
+             name: tile
            };
          },
         peg$c17 = { type: "other", description: "label" },
@@ -90,52 +100,88 @@ module.exports = (function() {
            return new commands.Outbox(location());
          },
         peg$c23 = { type: "other", description: "ADD" },
-        peg$c24 = function(arg) {
+        peg$c24 = function(i, arg) {
+           if (validator.isBlacklisted(i)) {
+            error('Found "' + i + '", instruction not allowed by level');
+           }
            return new commands.Add(location(), arg);
          },
         peg$c25 = { type: "other", description: "SUB" },
-        peg$c26 = function(arg) {
+        peg$c26 = function(i, arg) {
+           if (validator.isBlacklisted(i)) {
+            error('Found "' + i + '", instruction not allowed by level');
+           }
            return new commands.Sub(location(), arg);
          },
         peg$c27 = { type: "other", description: "BUMPUP" },
-        peg$c28 = function(arg) {
+        peg$c28 = function(i, arg) {
+           if (validator.isBlacklisted(i)) {
+            error('Found "' + i + '", instruction not allowed by level');
+           }
            return new commands.Bumpup(location(), arg);
          },
         peg$c29 = { type: "other", description: "BUMPDN" },
-        peg$c30 = function(arg) {
+        peg$c30 = function(i, arg) {
+           if (validator.isBlacklisted(i)) {
+            error('Found "' + i + '", instruction not allowed by level');
+           }
            return new commands.Bumpdn(location(), arg);
          },
         peg$c31 = { type: "other", description: "COPYTO" },
-        peg$c32 = function(arg) {
+        peg$c32 = function(i, arg) {
+           if (validator.isBlacklisted(i)) {
+            error('Found "' + i + '", instruction not allowed by level');
+           }
            return new commands.Copyto(location(), arg);
          },
         peg$c33 = { type: "other", description: "COPYFROM" },
-        peg$c34 = function(arg) {
+        peg$c34 = function(i, arg) {
+           if (validator.isBlacklisted(i)) {
+            error('Found "' + i + '", instruction not allowed by level');
+           }
            return new commands.Copyfrom(location(), arg);
          },
         peg$c35 = { type: "other", description: "JUMP" },
-        peg$c36 = function(label) {
+        peg$c36 = function(i, label) {
+           if (validator.isBlacklisted(i)) {
+            error('Found "' + i + '", instruction not allowed by level');
+           }
            return new commands.Jump(location(), label);
          },
         peg$c37 = { type: "other", description: "JUMPZ" },
-        peg$c38 = function(label) {
+        peg$c38 = function(i, label) {
+           if (validator.isBlacklisted(i)) {
+            error('Found "' + i + '", instruction not allowed by level');
+           }
            return new commands.Jumpz(location(), label);
          },
         peg$c39 = { type: "other", description: "JUMPN" },
-        peg$c40 = function(label) {
+        peg$c40 = function(i, label) {
+           if (validator.isBlacklisted(i)) {
+            error('Found "' + i + '", instruction not allowed by level');
+           }
            return new commands.Jumpn(location(), label);
          },
         peg$c41 = { type: "other", description: "COMMENT Reference" },
         peg$c42 = function(ref) {
-           return new commands.Comment(location(), ref.name);
+           if (!validator.canComment()) {
+             error('Found "COMMENT", statement not allowed by level');
+           }
+           return new commands.Comment(location(), ref.join(""));
          },
         peg$c43 = { type: "other", description: "DEFINE LABEL" },
         peg$c44 = function(ref, data) {
+           if (!validator.canLabelTiles()) {
+             error('Found "DEFINE LABEL", statement not allowed by level');
+           }
            return new commands.Define(location(), "label", ref.name, data);
          },
         peg$c45 = { type: "other", description: "DEFINE COMMENT" },
         peg$c46 = function(ref, data) {
-           return new commands.Define(location(), "comment", ref.name, data);
+           if (!validator.canComment()) {
+             error('Found "DEFINE COMMENT", statement not allowed by level');
+           }
+           return new commands.Define(location(), "comment", ref.join(""), data);
          },
         peg$c47 = { type: "other", description: "base64" },
         peg$c48 = ";",
@@ -900,7 +946,7 @@ module.exports = (function() {
           s3 = peg$parseArgument();
           if (s3 !== peg$FAILED) {
             peg$savedPos = s0;
-            s1 = peg$c24(s3);
+            s1 = peg$c24(s1, s3);
             s0 = s1;
           } else {
             peg$currPos = s0;
@@ -935,7 +981,7 @@ module.exports = (function() {
           s3 = peg$parseArgument();
           if (s3 !== peg$FAILED) {
             peg$savedPos = s0;
-            s1 = peg$c26(s3);
+            s1 = peg$c26(s1, s3);
             s0 = s1;
           } else {
             peg$currPos = s0;
@@ -970,7 +1016,7 @@ module.exports = (function() {
           s3 = peg$parseArgument();
           if (s3 !== peg$FAILED) {
             peg$savedPos = s0;
-            s1 = peg$c28(s3);
+            s1 = peg$c28(s1, s3);
             s0 = s1;
           } else {
             peg$currPos = s0;
@@ -1005,7 +1051,7 @@ module.exports = (function() {
           s3 = peg$parseArgument();
           if (s3 !== peg$FAILED) {
             peg$savedPos = s0;
-            s1 = peg$c30(s3);
+            s1 = peg$c30(s1, s3);
             s0 = s1;
           } else {
             peg$currPos = s0;
@@ -1040,7 +1086,7 @@ module.exports = (function() {
           s3 = peg$parseArgument();
           if (s3 !== peg$FAILED) {
             peg$savedPos = s0;
-            s1 = peg$c32(s3);
+            s1 = peg$c32(s1, s3);
             s0 = s1;
           } else {
             peg$currPos = s0;
@@ -1075,7 +1121,7 @@ module.exports = (function() {
           s3 = peg$parseArgument();
           if (s3 !== peg$FAILED) {
             peg$savedPos = s0;
-            s1 = peg$c34(s3);
+            s1 = peg$c34(s1, s3);
             s0 = s1;
           } else {
             peg$currPos = s0;
@@ -1110,7 +1156,7 @@ module.exports = (function() {
           s3 = peg$parseLabel();
           if (s3 !== peg$FAILED) {
             peg$savedPos = s0;
-            s1 = peg$c36(s3);
+            s1 = peg$c36(s1, s3);
             s0 = s1;
           } else {
             peg$currPos = s0;
@@ -1145,7 +1191,7 @@ module.exports = (function() {
           s3 = peg$parseLabel();
           if (s3 !== peg$FAILED) {
             peg$savedPos = s0;
-            s1 = peg$c38(s3);
+            s1 = peg$c38(s1, s3);
             s0 = s1;
           } else {
             peg$currPos = s0;
@@ -1180,7 +1226,7 @@ module.exports = (function() {
           s3 = peg$parseLabel();
           if (s3 !== peg$FAILED) {
             peg$savedPos = s0;
-            s1 = peg$c40(s3);
+            s1 = peg$c40(s1, s3);
             s0 = s1;
           } else {
             peg$currPos = s0;
@@ -1204,7 +1250,7 @@ module.exports = (function() {
     }
 
     function peg$parseCommentStatement() {
-      var s0, s1, s2, s3;
+      var s0, s1, s2, s3, s4;
 
       peg$silentFails++;
       s0 = peg$currPos;
@@ -1212,7 +1258,16 @@ module.exports = (function() {
       if (s1 !== peg$FAILED) {
         s2 = peg$parse__();
         if (s2 !== peg$FAILED) {
-          s3 = peg$parseDirectArgument();
+          s3 = [];
+          s4 = peg$parseDigit();
+          if (s4 !== peg$FAILED) {
+            while (s4 !== peg$FAILED) {
+              s3.push(s4);
+              s4 = peg$parseDigit();
+            }
+          } else {
+            s3 = peg$FAILED;
+          }
           if (s3 !== peg$FAILED) {
             peg$savedPos = s0;
             s1 = peg$c42(s3);
@@ -1322,7 +1377,16 @@ module.exports = (function() {
           if (s3 !== peg$FAILED) {
             s4 = peg$parse__();
             if (s4 !== peg$FAILED) {
-              s5 = peg$parseDirectArgument();
+              s5 = [];
+              s6 = peg$parseDigit();
+              if (s6 !== peg$FAILED) {
+                while (s6 !== peg$FAILED) {
+                  s5.push(s6);
+                  s6 = peg$parseDigit();
+                }
+              } else {
+                s5 = peg$FAILED;
+              }
               if (s5 !== peg$FAILED) {
                 s6 = peg$parse_();
                 if (s6 !== peg$FAILED) {
@@ -1952,25 +2016,11 @@ module.exports = (function() {
     }
 
 
+      var thisParser = this;
+
       var commands = require('../lib/hrm-commands.js');
-
-      function extractList(list, index) {
-        var result = new Array(list.length), i;
-
-        for (i = 0; i < list.length; i++) {
-          result[i] = list[i][index];
-        }
-
-        return result;
-      }
-
-      function buildList(head, tail, index) {
-        return [head].concat(extractList(tail, index));
-      }
-
-      function optionalList(value) {
-        return value !== null ? value : [];
-      }
+      var validator = require('../lib/validator.js')(this.hrm$options);
+      var pegutils = require('../lib/pegutils.js');
 
 
     peg$result = peg$startRuleFunction();

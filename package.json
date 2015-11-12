@@ -1,6 +1,6 @@
 {
   "name": "hrm-grammar",
-  "version": "2.2.1",
+  "version": "3.0.0",
   "description": "pegjs grammar for Human Resource Machine programs",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "files": [
     "grammars/",
-    "build",
+    "build/",
     "lib/",
     "test/",
     "Gruntfile.js",
@@ -35,6 +35,7 @@
     "grunt": "^0.4.5",
     "grunt-contrib-jshint": "^0.11.3",
     "grunt-peg": "^2.0.0",
+    "hrm-level-data": "^1.1.0",
     "pegjs": "^0.9.0",
     "tap": "^2.2.0",
     "tape": "^4.2.2"
