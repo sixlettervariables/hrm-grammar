@@ -118,15 +118,15 @@ test('keyword casing', function (t) {
     assert.equal(parsed.labels[0].label, 'a', '0th label is label "a"');
     assert.ok(parsed.labelMap.a, 'has label "a" in lookup map');
 
-    assert.equal(parsed.unreferencedLabels.length, 2, 'has 2 unreferenced label(s)');
-    assert.equal(parsed.unreferencedLabels[0].label, 'b', '0th unreferenced label is "b"');
-    assert.ok(parsed.unreferencedLabels[0].referencedBy, 'has referencing statement');
-    assert.equal(parsed.unreferencedLabels[0].referencedBy.type, 'jumpz', '0th unreferenced label referenced by "JUMPZ"');
-    assert.equal(parsed.unreferencedLabels[0].referencedBy.lineNumber, 10, '0th unreferenced label referenced on line 10');
-    assert.equal(parsed.unreferencedLabels[1].label, 'c', '1st unreferenced label is "c"');
-    assert.ok(parsed.unreferencedLabels[1].referencedBy, 'has referencing statement');
-    assert.equal(parsed.unreferencedLabels[1].referencedBy.type, 'jumpn', '1st unreferenced label referenced by "JUMPN"');
-    assert.equal(parsed.unreferencedLabels[1].referencedBy.lineNumber, 11, '1st unreferenced label referenced on line 11');
+    assert.equal(parsed.undefinedLabels.length, 2, 'has 2 unreferenced label(s)');
+    assert.equal(parsed.undefinedLabels[0].label, 'b', '0th unreferenced label is "b"');
+    assert.ok(parsed.undefinedLabels[0].referencedBy, 'has referencing statement');
+    assert.equal(parsed.undefinedLabels[0].referencedBy.type, 'jumpz', '0th unreferenced label referenced by "JUMPZ"');
+    assert.equal(parsed.undefinedLabels[0].referencedBy.lineNumber, 10, '0th unreferenced label referenced on line 10');
+    assert.equal(parsed.undefinedLabels[1].label, 'c', '1st unreferenced label is "c"');
+    assert.ok(parsed.undefinedLabels[1].referencedBy, 'has referencing statement');
+    assert.equal(parsed.undefinedLabels[1].referencedBy.type, 'jumpn', '1st unreferenced label referenced by "JUMPN"');
+    assert.equal(parsed.undefinedLabels[1].referencedBy.lineNumber, 11, '1st unreferenced label referenced on line 11');
 
     assert.end();
   });
@@ -351,7 +351,7 @@ test('actual HRM file 1 (strict)', function (t) {
 
     t.equal(parsed.statements.length, 18, 'has 18 statements');
     t.equal(parsed.labels.length, 3, 'has 3 labels');
-    t.equal(parsed.unreferencedLabels.length, 0, 'has 0 unreferenced labels');
+    t.equal(parsed.undefinedLabels.length, 0, 'has 0 unreferenced labels');
     t.equal(parsed.comments.length, 0, 'has 0 comments');
     t.equal(parsed.imageDefinitions.length, 3, 'has 3 image definitions');
     t.equal(countInstructions(parsed.statements), 15, 'has 15 instructions');
@@ -387,7 +387,7 @@ test('actual HRM file 2 (strict)', function (t) {
     t.ok(parsed, 'good syntax is parsed');
     t.equal(parsed.statements.length, 84, 'has 84 statements');
     t.equal(parsed.labels.length, 15, 'has 15 labels');
-    t.equal(parsed.unreferencedLabels.length, 0, 'has 0 unreferenced labels');
+    t.equal(parsed.undefinedLabels.length, 0, 'has 0 unreferenced labels');
     t.equal(parsed.comments.length, 8, 'has 8 comments');
     t.equal(parsed.imageDefinitions.length, 17, 'has 17 image definitions');
     t.equal(countInstructions(parsed.statements), 69, 'has 69 instructions');
