@@ -8,7 +8,7 @@ grunt.initConfig({
       browser: false,
       node: true,
     },
-    all: ['Gruntfile.js', 'index.js', 'test/**/*.js']
+    all: ['Gruntfile.js', 'lib/**/*.js', 'index.js', 'test/**/*.js']
   },
   peg: {
     options: { trackLineAndColumn: true },
