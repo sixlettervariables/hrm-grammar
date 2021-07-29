@@ -32,7 +32,7 @@
   },
   "homepage": "https://github.com/sixlettervariables/hrm-grammar#readme",
   "devDependencies": {
-    "grunt": "^0.4.5",
+    "grunt": "^1.3.0",
     "grunt-contrib-jshint": "^0.11.3",
     "grunt-peg": "^2.0.0",
     "pegjs": "^0.9.0",
