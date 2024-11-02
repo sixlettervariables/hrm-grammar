@@ -26,7 +26,7 @@
 // Test general HRM syntax
 //
 var test = require('tape');
-var hrm = require('../build/hrm.js');
+var hrm = require('../index.js').parser;
 var fs = require('fs');
 var Path = require('path');
 
@@ -87,26 +87,46 @@ test('line comments', function (t) {
 test('keyword casing', function (t) {
 
   t.test('UPPERCASE', function (assert) {
-    var parsed = hrm.parse('INBOX\nOUTBOX\nCOPYTO 0\nCOPYFROM 0\nADD 0\nSUB 0\nBUMPUP 0\nBUMPDN 0\nJUMP a\nJUMPZ b\nJUMPN c\nCOMMENT 0\nDEFINE LABEL 0\nBASE64;\nDEFINE COMMENT 0\nBASE64;\n');
+    var parsed = hrm.parse('a: INBOX\nOUTBOX\nCOPYTO 0\nCOPYFROM 0\nADD 0\nSUB 0\nBUMPUP 0\nBUMPDN 0\nJUMP a\nJUMPZ b\nJUMPN c\nCOMMENT 0\nDEFINE LABEL 0\nBASE64;\nDEFINE COMMENT 0\nBASE64;\n');
     assert.ok(parsed, 'can parse UPPERCASE keywords');
 
-    assert.equal(parsed.statements.length, 14, 'has 14 statement(s)');
-    assert.equal(parsed.statements[0].type, 'inbox', 'is an INBOX statement');
-    assert.equal(parsed.statements[1].type, 'outbox', 'is an OUTBOX statement');
-    assert.equal(parsed.statements[2].type, 'copyto', 'is a COPYTO statement');
-    assert.equal(parsed.statements[3].type, 'copyfrom', 'is a COPYFROM statement');
-    assert.equal(parsed.statements[4].type, 'add', 'is an ADD statement');
-    assert.equal(parsed.statements[5].type, 'sub', 'is a SUB statement');
-    assert.equal(parsed.statements[6].type, 'bumpup', 'is a BUMPUP statement');
-    assert.equal(parsed.statements[7].type, 'bumpdn', 'is a BUMPDN statement');
-    assert.equal(parsed.statements[8].type, 'jump', 'is a JUMP statement');
-    assert.equal(parsed.statements[9].type, 'jumpz', 'is a JUMPZ statement');
-    assert.equal(parsed.statements[10].type, 'jumpn', 'is a JUMPN statement');
-    assert.equal(parsed.statements[11].type, 'comment', 'is a COMMENT statement');
-    assert.equal(parsed.statements[12].type, 'define', 'is a DEFINE statement');
-    assert.equal(parsed.statements[12].what, 'label', 'is a DEFINE LABEL statement');
-    assert.equal(parsed.statements[13].type, 'define', 'is a DEFINE statement');
-    assert.equal(parsed.statements[13].what, 'comment', 'is a DEFINE COMMENT statement');
+    assert.equal(parsed.statements.length, 12, 'has 12 statement(s)');
+    assert.equal(parsed.statements[0].type, 'label', 'is a LABEL statement');
+    assert.equal(parsed.statements[1].type, 'inbox', 'is an INBOX statement');
+    assert.equal(parsed.statements[2].type, 'outbox', 'is an OUTBOX statement');
+    assert.equal(parsed.statements[3].type, 'copyto', 'is a COPYTO statement');
+    assert.equal(parsed.statements[4].type, 'copyfrom', 'is a COPYFROM statement');
+    assert.equal(parsed.statements[5].type, 'add', 'is an ADD statement');
+    assert.equal(parsed.statements[6].type, 'sub', 'is a SUB statement');
+    assert.equal(parsed.statements[7].type, 'bumpup', 'is a BUMPUP statement');
+    assert.equal(parsed.statements[8].type, 'bumpdn', 'is a BUMPDN statement');
+    assert.equal(parsed.statements[9].type, 'jump', 'is a JUMP statement');
+    assert.equal(parsed.statements[10].type, 'jumpz', 'is a JUMPZ statement');
+    assert.equal(parsed.statements[11].type, 'jumpn', 'is a JUMPN statement');
+
+    assert.equal(parsed.comments.length, 1, 'has 1 comment(s)');
+    assert.equal(parsed.comments[0].type, 'comment', 'is a COMMENT statement');
+
+    assert.equal(parsed.imageDefinitions.length, 2, 'has 2 image definition(s)');
+    assert.equal(parsed.imageDefinitions[0].type, 'define', 'is a DEFINE statement');
+    assert.equal(parsed.imageDefinitions[0].what, 'label', 'is a DEFINE LABEL statement');
+    assert.equal(parsed.imageDefinitions[1].type, 'define', 'is a DEFINE statement');
+    assert.equal(parsed.imageDefinitions[1].what, 'comment', 'is a DEFINE COMMENT statement');
+
+    assert.equal(parsed.labels.length, 1, 'has 1 label(s)');
+    assert.equal(parsed.labels[0].type, 'label', '0th label is a label object');
+    assert.equal(parsed.labels[0].label, 'a', '0th label is label "a"');
+    assert.ok(parsed.labelMap.a, 'has label "a" in lookup map');
+
+    assert.equal(parsed.undefinedLabels.length, 2, 'has 2 unreferenced label(s)');
+    assert.equal(parsed.undefinedLabels[0].label, 'b', '0th unreferenced label is "b"');
+    assert.ok(parsed.undefinedLabels[0].referencedBy, 'has referencing statement');
+    assert.equal(parsed.undefinedLabels[0].referencedBy.type, 'jumpz', '0th unreferenced label referenced by "JUMPZ"');
+    assert.equal(parsed.undefinedLabels[0].referencedBy.lineNumber, 10, '0th unreferenced label referenced on line 10');
+    assert.equal(parsed.undefinedLabels[1].label, 'c', '1st unreferenced label is "c"');
+    assert.ok(parsed.undefinedLabels[1].referencedBy, 'has referencing statement');
+    assert.equal(parsed.undefinedLabels[1].referencedBy.type, 'jumpn', '1st unreferenced label referenced by "JUMPN"');
+    assert.equal(parsed.undefinedLabels[1].referencedBy.lineNumber, 11, '1st unreferenced label referenced on line 11');
 
     assert.end();
   });
@@ -329,7 +349,12 @@ test('actual HRM file 1 (strict)', function (t) {
     t.ok(parsed, 'good syntax is parsed');
     t.ok(parsed.statements, 'has statements');
 
-    t.equal(parsed.statements.length, 21);
+    t.equal(parsed.statements.length, 18, 'has 18 statements');
+    t.equal(parsed.labels.length, 3, 'has 3 labels');
+    t.equal(parsed.undefinedLabels.length, 0, 'has 0 unreferenced labels');
+    t.equal(parsed.comments.length, 0, 'has 0 comments');
+    t.equal(parsed.imageDefinitions.length, 3, 'has 3 image definitions');
+    t.equal(countInstructions(parsed.statements), 15, 'has 15 instructions');
 
     t.equal(parsed.statements[0].type, 'label');
     t.equal(parsed.statements[0].label, 'a');
@@ -338,10 +363,10 @@ test('actual HRM file 1 (strict)', function (t) {
     t.equal(parsed.statements[9].arg.type, 'IndirectIdentifier');
     t.equal(parsed.statements[9].arg.name, '4');
 
-    t.equal(parsed.statements[20].type, 'define');
-    t.equal(parsed.statements[20].what, 'label');
-    t.equal(parsed.statements[20].ref, '4');
-    var b64 = parsed.statements[20].data;
+    t.equal(parsed.imageDefinitions[2].type, 'define');
+    t.equal(parsed.imageDefinitions[2].what, 'label');
+    t.equal(parsed.imageDefinitions[2].ref, '4');
+    var b64 = parsed.imageDefinitions[2].data;
     t.equal(b64, 'eJxLY2BgKOCMuVfAaX64iCNmwxZ2wRUVbO4LrVmd51mzXqr6x2yWXsEmG1rKHhH4keOafy5XROAaLtnQe/xN+bcFlrTHCmyYkMS3d6YaL8OcN1z2s4HGMbRI7pzGLNWU7yU+2Vdf8aADSOyq1s6MSE2GvFsak6vFte41X9JW63QzeN3zy+R1j4m5Vs9ay8dtr6zOlW8y35DUrfc6boKOUQpIn0EAi2huoLfU68AQBY3gFTFLQpryVwbp9a8M2jntXcC5pb+9vZc4eLHMb/Jc0u7gFVD5z+tkSamfddbKoNK0B6GlaSAzjsXvzDgWL9vMkKTVU5P8vr8y5XXP6ky9/rTs2Y2ZWd5l6zLqct5mfE5Znfk+EaT+SXNm7MvGzNj39e8Td1V/TnGsPFrIUjG7sbYqt6+01npGdqPzPKvJTXNTZpdOAakPXDRZPnDRIy3/xXrGExcJ+pxdfDCPa+nsxublGybsXWk06euaDROebnrcNndrRP2M7dPrQHp+TJYNjZl3zf/5xsm+Hnu73H/csrdXerzFXORFpv7Rt1oGDKNgFNAJAACvsa2M');
 
     t.end(err);
@@ -360,7 +385,11 @@ test('actual HRM file 2 (strict)', function (t) {
     var parsed = hrm.parse(source);
 
     t.ok(parsed, 'good syntax is parsed');
-    t.equal(parsed.statements.length, 109, 'has 109 statements');
+    t.equal(parsed.statements.length, 84, 'has 84 statements');
+    t.equal(parsed.labels.length, 15, 'has 15 labels');
+    t.equal(parsed.undefinedLabels.length, 0, 'has 0 unreferenced labels');
+    t.equal(parsed.comments.length, 8, 'has 8 comments');
+    t.equal(parsed.imageDefinitions.length, 17, 'has 17 image definitions');
     t.equal(countInstructions(parsed.statements), 69, 'has 69 instructions');
 
     // 7: COPYTO [21]
@@ -370,14 +399,14 @@ test('actual HRM file 2 (strict)', function (t) {
     t.equal(parsed.statements[6].arg.name, '21', 'Line 7 is COPYTO [21]');
 
     // 28: JUMPZ    m
-    t.equal(parsed.statements[27].type, 'jumpz', 'Line 28 is JUMPZ m');
-    t.equal(parsed.statements[27].label, 'm', 'Line 28 is JUMPZ m');
+    t.equal(parsed.statements[24].type, 'jumpz', 'Line 25 is JUMPZ m');
+    t.equal(parsed.statements[24].label, 'm', 'Line 25 is JUMPZ m');
 
-    // 100: DEFINE COMMENT 7 ...;
-    t.equal(parsed.statements[99].type, 'define', 'Line 100 is DEFINE COMMENT 7...');
-    t.equal(parsed.statements[99].what, 'comment', 'Line 100 is DEFINE COMMENT 7...');
-    t.equal(parsed.statements[99].ref, '7', 'Line 100 is DEFINE COMMENT 7...');
-    t.equal(parsed.statements[99].data,
+    // DEFINE COMMENT 7 ...;
+    t.equal(parsed.imageDefinitions[7].type, 'define', '7th image definition is DEFINE COMMENT 7...');
+    t.equal(parsed.imageDefinitions[7].what, 'comment', '7th image definition is DEFINE COMMENT 7...');
+    t.equal(parsed.imageDefinitions[7].ref, '7', '7th image definition is DEFINE COMMENT 7...');
+    t.equal(parsed.imageDefinitions[7].data,
     'eJyrZWBgqObpXBUlGLzju/i7Q2lS7w7VyhzYry87cc9kOd5FD2XvzZOQXjArSpBlwlx+7UZGwYKS12Jf' +
     'stOknmQ9lN1XCdTOEKv5JZtfS2bxGe0N+0B8Fs3bprGaXJbz1csdrNXaHOtULGys1fYYu6mvNQLJa7g4' +
     'b1/r0LT7rHHT7hsmRbvem7FuPmxlPPmmzfLObts/tbZ2+yrZHAOL1josSwOpzzQKLPpl/iRrmt2ytEX2' +
@@ -386,7 +415,7 @@ test('actual HRM file 2 (strict)', function (t) {
     'EqT/R9+2dIMpGUk/p13NPDizoVRqllXTthmNM35Oy1phMGXG6gMTZ6zeOqFy5eTexhkq3RVtp7v+1J7u' +
     '6i+r7TYq6OhhzgWZYbREZnH94gWz1Bb3l5UsepKltlgqFiR+c7Fy/sJl29JvrraMf7pGK85zXUaS7KaC' +
     'ksbNxpMbN+ssAakRPnise8PxzNa7p//Ump05WyV/anrq7hNSsd7Hzob3HdkbVn5ob1jOwTeR6/dHJH7c' +
-    'W1DycW9FG8eBBbNyDv5d8PyI97KLp6yXMoyCUYAEAAXx3bs', 'Line 100 is DEFINE COMMENT 7...');
+    'W1DycW9FG8eBBbNyDv5d8PyI97KLp6yXMoyCUYAEAAXx3bs', '7th image definition is DEFINE COMMENT 7...');
 
     t.end(err);
   });
@@ -411,7 +440,7 @@ test('actual HRM file 4 (strict)', function (t) {
     var parsed = hrm.parse(source);
 
     t.ok(parsed, 'good syntax is parsed');
-    t.equal(parsed.statements.length, 134, 'has 134 statements');
+    t.equal(parsed.statements.length, 123, 'has 123 statements');
     t.equal(countInstructions(parsed.statements), 98, 'has 98 instructions');
 
     t.end(err);

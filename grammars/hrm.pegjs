@@ -28,25 +28,11 @@
  * [1] https://github.com/pegjs/pegjs/blob/master/examples/javascript.pegjs
  */
 {
+  var thisParser = this;
+
   var commands = require('../lib/hrm-commands.js');
-
-  function extractList(list, index) {
-    var result = new Array(list.length), i;
-
-    for (i = 0; i < list.length; i++) {
-      result[i] = list[i][index];
-    }
-
-    return result;
-  }
-
-  function buildList(head, tail, index) {
-    return [head].concat(extractList(tail, index));
-  }
-
-  function optionalList(value) {
-    return value !== null ? value : [];
-  }
+  var validator = require('../lib/validator.js')(this.hrm$options);
+  var pegutils = require('../lib/pegutils.js');
 }
 
 Start
@@ -54,14 +40,13 @@ Start
 
 Program
  = __ body:Lines? __ {
-   return {
-     statements: optionalList(body)
-   };
+   var statements = pegutils.optionalList(body);
+   return new commands.Program(statements);
  }
 
 Lines
  = __ head:Line tail:(__ Line)* {
-   return buildList(head, tail, 1);
+   return pegutils.buildList(head, tail, 1);
  }
 
 Line
@@ -115,17 +100,28 @@ Argument
 
 DirectArgument "argument"
  = a:Digit+ {
+   var tile = a.join("");
+   if (!validator.isValidTile(tile)) {
+     error('Found tile "'+ tile +'", which is not supported by the level');
+   }
    return {
      type: "Identifier",
-     name: a.join("")
+     name: tile
    };
  }
 
 IndirectArgument "indirect argument"
  = "[" __ a:Digit+ __ "]" {
+   var tile = a.join("");
+   if (!validator.canDereference()) {
+     error('Found indirect addressing, mode not supported by the level');
+   }
+   else if (!validator.isValidTile(tile)) {
+     error('Found tile "'+ tile +'", which is not supported by the level');
+   }
    return {
      type: "IndirectIdentifier",
-     name: a.join("")
+     name: tile
    };
  }
 
@@ -149,63 +145,99 @@ OutboxStatement "OUTBOX"
  }
 
 AddStatement "ADD"
- = tkAdd __ arg:Argument {
+ = i:tkAdd __ arg:Argument {
+   if (validator.isBlacklisted(i)) {
+    error('Found "' + i + '", instruction not allowed by level');
+   }
    return new commands.Add(location(), arg);
  }
 
 SubStatement "SUB"
- = tkSub __ arg:Argument {
+ = i:tkSub __ arg:Argument {
+   if (validator.isBlacklisted(i)) {
+    error('Found "' + i + '", instruction not allowed by level');
+   }
    return new commands.Sub(location(), arg);
  }
 
 BumpupStatement "BUMPUP"
- = tkBumpup __ arg:Argument {
+ = i:tkBumpup __ arg:Argument {
+   if (validator.isBlacklisted(i)) {
+    error('Found "' + i + '", instruction not allowed by level');
+   }
    return new commands.Bumpup(location(), arg);
  }
 
 BumpdnStatement "BUMPDN"
- = tkBumpdn __ arg:Argument {
+ = i:tkBumpdn __ arg:Argument {
+   if (validator.isBlacklisted(i)) {
+    error('Found "' + i + '", instruction not allowed by level');
+   }
    return new commands.Bumpdn(location(), arg);
  }
 
 CopytoStatement "COPYTO"
- = tkCopyto __ arg:Argument {
+ = i:tkCopyto __ arg:Argument {
+   if (validator.isBlacklisted(i)) {
+    error('Found "' + i + '", instruction not allowed by level');
+   }
    return new commands.Copyto(location(), arg);
  }
 
 CopyfromStatement "COPYFROM"
- = tkCopyfrom __ arg:Argument {
+ = i:tkCopyfrom __ arg:Argument {
+   if (validator.isBlacklisted(i)) {
+    error('Found "' + i + '", instruction not allowed by level');
+   }
    return new commands.Copyfrom(location(), arg);
  }
 
 JumpStatement "JUMP"
- = tkJump __ label:Label {
+ = i:tkJump __ label:Label {
+   if (validator.isBlacklisted(i)) {
+    error('Found "' + i + '", instruction not allowed by level');
+   }
    return new commands.Jump(location(), label);
  }
 
 JumpzStatement "JUMPZ"
- = tkJumpz __ label:Label {
+ = i:tkJumpz __ label:Label {
+   if (validator.isBlacklisted(i)) {
+    error('Found "' + i + '", instruction not allowed by level');
+   }
    return new commands.Jumpz(location(), label);
  }
 
 JumpnStatement "JUMPN"
- = tkJumpn __ label:Label {
+ = i:tkJumpn __ label:Label {
+   if (validator.isBlacklisted(i)) {
+    error('Found "' + i + '", instruction not allowed by level');
+   }
    return new commands.Jumpn(location(), label);
  }
 
 CommentStatement "COMMENT Reference"
- = tkComment __ ref:DirectArgument {
-   return new commands.Comment(location(), ref.name);
+ = tkComment __ ref:Digit+ {
+   if (!validator.canComment()) {
+     error('Found "COMMENT", statement not allowed by level');
+   }
+   return new commands.Comment(location(), ref.join(""));
  }
 
 DefineLabelStatement "DEFINE LABEL"
  = tkDefine __ tkLabel __ ref:DirectArgument _ LineTerminatorSequence __ data:Base64Data {
+   if (!validator.canLabelTiles()) {
+     error('Found "DEFINE LABEL", statement not allowed by level');
+   }
    return new commands.Define(location(), "label", ref.name, data);
  }
 
 DefineCommentStatement "DEFINE COMMENT"
- = tkDefine __ tkComment __ ref:DirectArgument _ LineTerminatorSequence __ data:Base64Data {
-   return new commands.Define(location(), "comment", ref.name, data);
+ = tkDefine __ tkComment __ ref:Digit+ _ LineTerminatorSequence __ data:Base64Data {
+   if (!validator.canComment()) {
+     error('Found "DEFINE COMMENT", statement not allowed by level');
+   }
+   return new commands.Define(location(), "comment", ref.join(""), data);
  }
 
 Base64Data "base64"
